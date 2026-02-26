@@ -1,1 +1,1161 @@
+<!DOCTYPE html>
+<html lang="id" data-theme="light">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Firestore — Solusi Digital & Server Minecraft</title>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,400&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/lucide/0.263.1/umd/lucide.min.js"></script>
+<style>
+  :root {
+    --bg: #f0f4ff;
+    --bg2: #e8eeff;
+    --surface: rgba(255,255,255,0.85);
+    --surface2: rgba(255,255,255,0.6);
+    --border: rgba(148,163,255,0.25);
+    --text: #1a1f4e;
+    --text2: #5b6397;
+    --text3: #8a91c0;
+    --accent1: #7c6fff;
+    --accent2: #b06fff;
+    --accent3: #ff7ec8;
+    --accent4: #5cc8ff;
+    --grad1: linear-gradient(135deg, #7c6fff 0%, #b06fff 50%, #ff7ec8 100%);
+    --grad2: linear-gradient(135deg, #5cc8ff 0%, #7c6fff 100%);
+    --grad3: linear-gradient(160deg, #e8f0ff 0%, #f0e8ff 50%, #ffe8f5 100%);
+    --shadow: 0 8px 32px rgba(124,111,255,0.15);
+    --shadow2: 0 2px 12px rgba(124,111,255,0.1);
+    --sidebar-w: 240px;
+  }
+  [data-theme="dark"] {
+    --bg: #0d0f1e;
+    --bg2: #111326;
+    --surface: rgba(22,25,50,0.9);
+    --surface2: rgba(30,33,65,0.7);
+    --border: rgba(124,111,255,0.2);
+    --text: #e8eaff;
+    --text2: #9da5d4;
+    --text3: #5c6494;
+    --grad3: linear-gradient(160deg, #0d0f2e 0%, #160f2e 50%, #1e0f28 100%);
+    --shadow: 0 8px 32px rgba(0,0,0,0.4);
+    --shadow2: 0 2px 12px rgba(0,0,0,0.3);
+  }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    transition: background 0.4s, color 0.4s;
+    overflow-x: hidden;
+  }
+  /* Mesh background */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background: var(--grad3);
+    z-index: -2;
+    transition: background 0.4s;
+  }
+  body::after {
+    content: '';
+    position: fixed;
+    top: -40%;
+    right: -20%;
+    width: 80vw;
+    height: 80vw;
+    background: radial-gradient(ellipse, rgba(176,111,255,0.12) 0%, transparent 70%);
+    z-index: -1;
+    pointer-events: none;
+  }
 
+  /* ===== HEADER ===== */
+  header {
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    z-index: 100;
+    height: 64px;
+    display: flex;
+    align-items: center;
+    padding: 0 24px;
+    background: var(--surface);
+    backdrop-filter: blur(20px);
+    border-bottom: 1px solid var(--border);
+    gap: 24px;
+    transition: background 0.4s;
+  }
+  .logo {
+    font-family: 'Sora', sans-serif;
+    font-weight: 800;
+    font-size: 1.3rem;
+    background: var(--grad1);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    flex-shrink: 0;
+    letter-spacing: -0.5px;
+  }
+  .logo span { font-weight: 300; }
+  nav { display: flex; gap: 4px; margin-left: 8px; }
+  nav a {
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: var(--text2);
+    text-decoration: none;
+    padding: 6px 14px;
+    border-radius: 10px;
+    transition: all 0.2s;
+  }
+  nav a:hover { color: var(--accent1); background: rgba(124,111,255,0.08); }
+  .header-right { margin-left: auto; display: flex; align-items: center; gap: 10px; }
+  .btn-ghost {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.85rem;
+    font-weight: 500;
+    color: var(--text2);
+    background: transparent;
+    border: 1.5px solid var(--border);
+    padding: 7px 18px;
+    border-radius: 12px;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .btn-ghost:hover { border-color: var(--accent1); color: var(--accent1); }
+  .btn-primary {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: #fff;
+    background: var(--grad1);
+    border: none;
+    padding: 8px 20px;
+    border-radius: 12px;
+    cursor: pointer;
+    transition: all 0.2s;
+    box-shadow: 0 4px 16px rgba(124,111,255,0.35);
+  }
+  .btn-primary:hover { transform: translateY(-1px); box-shadow: 0 6px 20px rgba(124,111,255,0.45); }
+  .theme-toggle {
+    width: 38px; height: 38px;
+    border-radius: 12px;
+    border: 1.5px solid var(--border);
+    background: var(--surface2);
+    cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    color: var(--text2);
+    transition: all 0.2s;
+  }
+  .theme-toggle:hover { border-color: var(--accent1); color: var(--accent1); }
+  .hamburger {
+    display: none;
+    width: 38px; height: 38px;
+    border-radius: 12px;
+    border: 1.5px solid var(--border);
+    background: var(--surface2);
+    cursor: pointer;
+    align-items: center; justify-content: center;
+    color: var(--text2);
+  }
+
+  /* ===== SIDEBAR ===== */
+  .sidebar {
+    position: fixed;
+    top: 64px; left: 0; bottom: 0;
+    width: var(--sidebar-w);
+    background: var(--surface);
+    backdrop-filter: blur(20px);
+    border-right: 1px solid var(--border);
+    padding: 20px 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    z-index: 90;
+    overflow-y: auto;
+    transition: transform 0.3s cubic-bezier(0.4,0,0.2,1), background 0.4s;
+  }
+  .sidebar-label {
+    font-size: 0.7rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: var(--text3);
+    padding: 12px 12px 6px;
+  }
+  .sidebar-link {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 12px;
+    border-radius: 12px;
+    color: var(--text2);
+    text-decoration: none;
+    font-size: 0.875rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s;
+    position: relative;
+  }
+  .sidebar-link:hover { background: rgba(124,111,255,0.08); color: var(--accent1); }
+  .sidebar-link.active {
+    background: rgba(124,111,255,0.12);
+    color: var(--accent1);
+  }
+  .sidebar-link.active::before {
+    content: '';
+    position: absolute;
+    left: 0; top: 4px; bottom: 4px;
+    width: 3px;
+    border-radius: 0 4px 4px 0;
+    background: var(--grad1);
+  }
+  .cart-badge {
+    margin-left: auto;
+    background: var(--grad1);
+    color: #fff;
+    font-size: 0.7rem;
+    font-weight: 700;
+    padding: 2px 7px;
+    border-radius: 20px;
+    min-width: 22px;
+    text-align: center;
+  }
+
+  /* ===== MAIN ===== */
+  .main {
+    margin-left: var(--sidebar-w);
+    padding-top: 64px;
+    min-height: 100vh;
+    transition: margin-left 0.3s;
+  }
+
+  /* ===== HERO ===== */
+  .hero {
+    position: relative;
+    padding: 80px 48px 80px;
+    overflow: hidden;
+  }
+  .hero-bg {
+    position: absolute;
+    inset: 0;
+    background: var(--grad1);
+    opacity: 0.07;
+    z-index: 0;
+  }
+  .hero-orb1, .hero-orb2 {
+    position: absolute;
+    border-radius: 50%;
+    filter: blur(60px);
+    z-index: 0;
+  }
+  .hero-orb1 {
+    width: 400px; height: 400px;
+    background: radial-gradient(circle, rgba(124,111,255,0.25) 0%, transparent 70%);
+    top: -100px; right: 10%;
+    animation: float 8s ease-in-out infinite;
+  }
+  .hero-orb2 {
+    width: 300px; height: 300px;
+    background: radial-gradient(circle, rgba(255,126,200,0.2) 0%, transparent 70%);
+    bottom: -50px; right: 30%;
+    animation: float 10s ease-in-out infinite reverse;
+  }
+  @keyframes float {
+    0%, 100% { transform: translateY(0px); }
+    50% { transform: translateY(-20px); }
+  }
+  .hero-content {
+    position: relative;
+    z-index: 1;
+    max-width: 620px;
+    animation: slideUp 0.7s ease both;
+  }
+  @keyframes slideUp {
+    from { opacity: 0; transform: translateY(30px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  .hero-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: rgba(124,111,255,0.12);
+    border: 1px solid rgba(124,111,255,0.25);
+    color: var(--accent1);
+    padding: 5px 14px;
+    border-radius: 100px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    margin-bottom: 20px;
+    animation: slideUp 0.7s 0.1s ease both;
+  }
+  .hero h1 {
+    font-family: 'Sora', sans-serif;
+    font-size: clamp(2rem, 4vw, 3.2rem);
+    font-weight: 800;
+    line-height: 1.1;
+    letter-spacing: -1px;
+    margin-bottom: 16px;
+    animation: slideUp 0.7s 0.2s ease both;
+  }
+  .hero h1 .gradient-text {
+    background: var(--grad1);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+  .hero p {
+    font-size: 1.05rem;
+    color: var(--text2);
+    line-height: 1.7;
+    margin-bottom: 32px;
+    animation: slideUp 0.7s 0.3s ease both;
+  }
+  .hero-buttons {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+    animation: slideUp 0.7s 0.4s ease both;
+  }
+  .btn-large {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.95rem;
+    font-weight: 600;
+    padding: 13px 28px;
+    border-radius: 14px;
+    cursor: pointer;
+    border: none;
+    transition: all 0.25s;
+  }
+  .btn-large.primary {
+    background: var(--grad1);
+    color: #fff;
+    box-shadow: 0 6px 24px rgba(124,111,255,0.4);
+  }
+  .btn-large.primary:hover { transform: translateY(-2px); box-shadow: 0 10px 32px rgba(124,111,255,0.5); }
+  .btn-large.secondary {
+    background: var(--surface);
+    color: var(--text);
+    border: 1.5px solid var(--border);
+  }
+  .btn-large.secondary:hover { border-color: var(--accent1); color: var(--accent1); transform: translateY(-2px); }
+
+  /* ===== STATS ===== */
+  .stats-bar {
+    display: flex;
+    gap: 0;
+    padding: 0 48px 40px;
+    animation: slideUp 0.7s 0.5s ease both;
+  }
+  .stat-item {
+    flex: 1;
+    padding: 20px 24px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    text-align: center;
+    transition: all 0.2s;
+  }
+  .stat-item:first-child { border-radius: 16px 0 0 16px; }
+  .stat-item:last-child { border-radius: 0 16px 16px 0; }
+  .stat-item:hover { background: rgba(124,111,255,0.06); }
+  .stat-num {
+    font-family: 'Sora', sans-serif;
+    font-size: 1.6rem;
+    font-weight: 800;
+    background: var(--grad1);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+  .stat-label { font-size: 0.8rem; color: var(--text3); margin-top: 2px; }
+
+  /* ===== PRODUCTS ===== */
+  .section { padding: 24px 48px 48px; }
+  .section-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 28px;
+  }
+  .section-title {
+    font-family: 'Sora', sans-serif;
+    font-size: 1.5rem;
+    font-weight: 700;
+    letter-spacing: -0.5px;
+  }
+  .section-line {
+    flex: 1;
+    height: 1px;
+    background: var(--border);
+  }
+  .products-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    gap: 20px;
+  }
+  .product-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    transition: all 0.3s cubic-bezier(0.4,0,0.2,1);
+    cursor: default;
+    position: relative;
+    overflow: hidden;
+    animation: fadeInCard 0.5s ease both;
+  }
+  .product-card::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: var(--grad1);
+    opacity: 0;
+    transition: opacity 0.3s;
+    z-index: 0;
+  }
+  .product-card:hover {
+    transform: translateY(-6px);
+    box-shadow: var(--shadow);
+    border-color: rgba(124,111,255,0.4);
+  }
+  .product-card > * { position: relative; z-index: 1; }
+  @keyframes fadeInCard {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  .product-card:nth-child(2) { animation-delay: 0.1s; }
+  .product-card:nth-child(3) { animation-delay: 0.2s; }
+  .product-card:nth-child(4) { animation-delay: 0.3s; }
+  .product-card:nth-child(5) { animation-delay: 0.4s; }
+  .product-icon {
+    width: 52px; height: 52px;
+    border-radius: 14px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1.4rem;
+    margin-bottom: 4px;
+  }
+  .icon-purple { background: rgba(124,111,255,0.12); }
+  .icon-pink { background: rgba(255,126,200,0.12); }
+  .icon-cyan { background: rgba(92,200,255,0.12); }
+  .icon-orange { background: rgba(255,167,70,0.12); }
+  .icon-green { background: rgba(92,255,180,0.12); }
+  .product-name {
+    font-family: 'Sora', sans-serif;
+    font-size: 1rem;
+    font-weight: 700;
+    color: var(--text);
+  }
+  .product-desc {
+    font-size: 0.85rem;
+    color: var(--text2);
+    line-height: 1.6;
+    flex: 1;
+  }
+  .product-footer { display: flex; align-items: center; justify-content: space-between; margin-top: 4px; }
+  .product-price {
+    font-family: 'Sora', sans-serif;
+    font-size: 1.05rem;
+    font-weight: 700;
+    background: var(--grad1);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+  .btn-buy {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.82rem;
+    font-weight: 600;
+    padding: 8px 16px;
+    background: var(--grad1);
+    color: #fff;
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: all 0.2s;
+    box-shadow: 0 4px 12px rgba(124,111,255,0.3);
+  }
+  .btn-buy:hover { transform: scale(1.05); box-shadow: 0 6px 16px rgba(124,111,255,0.4); }
+  .product-badge {
+    position: absolute;
+    top: 16px; right: 16px;
+    font-size: 0.7rem;
+    font-weight: 700;
+    padding: 3px 10px;
+    border-radius: 20px;
+  }
+  .badge-hot { background: rgba(255,80,120,0.15); color: #ff5078; border: 1px solid rgba(255,80,120,0.2); }
+  .badge-new { background: rgba(92,200,255,0.15); color: #5cc8ff; border: 1px solid rgba(92,200,255,0.2); }
+  .badge-popular { background: rgba(124,111,255,0.15); color: var(--accent1); border: 1px solid rgba(124,111,255,0.2); }
+
+  /* ===== FOOTER ===== */
+  footer {
+    background: var(--surface);
+    border-top: 1px solid var(--border);
+    padding: 48px 48px 32px;
+    margin-top: 48px;
+  }
+  .footer-grid {
+    display: grid;
+    grid-template-columns: 2fr 1fr 1fr 1fr;
+    gap: 40px;
+    margin-bottom: 40px;
+  }
+  .footer-logo {
+    font-family: 'Sora', sans-serif;
+    font-weight: 800;
+    font-size: 1.4rem;
+    background: var(--grad1);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    margin-bottom: 12px;
+  }
+  .footer-desc { font-size: 0.875rem; color: var(--text2); line-height: 1.7; }
+  .footer-socials { display: flex; gap: 10px; margin-top: 20px; }
+  .social-btn {
+    width: 40px; height: 40px;
+    border-radius: 12px;
+    border: 1.5px solid var(--border);
+    background: var(--surface2);
+    display: flex; align-items: center; justify-content: center;
+    color: var(--text2);
+    text-decoration: none;
+    transition: all 0.2s;
+    font-size: 1.1rem;
+  }
+  .social-btn:hover { border-color: var(--accent1); color: var(--accent1); transform: translateY(-2px); }
+  .footer-col h4 {
+    font-family: 'Sora', sans-serif;
+    font-size: 0.9rem;
+    font-weight: 700;
+    margin-bottom: 16px;
+    color: var(--text);
+  }
+  .footer-col a {
+    display: block;
+    font-size: 0.85rem;
+    color: var(--text2);
+    text-decoration: none;
+    margin-bottom: 10px;
+    transition: color 0.2s;
+  }
+  .footer-col a:hover { color: var(--accent1); }
+  .footer-bottom {
+    padding-top: 24px;
+    border-top: 1px solid var(--border);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+  .footer-copy { font-size: 0.82rem; color: var(--text3); }
+
+  /* ===== TOAST ===== */
+  .toast-container {
+    position: fixed;
+    bottom: 24px; right: 24px;
+    z-index: 1000;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    pointer-events: none;
+  }
+  .toast {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    backdrop-filter: blur(20px);
+    border-radius: 16px;
+    padding: 14px 18px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    min-width: 280px;
+    box-shadow: var(--shadow);
+    animation: toastIn 0.4s cubic-bezier(0.4,0,0.2,1) both;
+    pointer-events: all;
+    transition: background 0.4s;
+  }
+  .toast.out { animation: toastOut 0.3s ease forwards; }
+  @keyframes toastIn {
+    from { opacity: 0; transform: translateX(30px) scale(0.95); }
+    to { opacity: 1; transform: translateX(0) scale(1); }
+  }
+  @keyframes toastOut {
+    to { opacity: 0; transform: translateX(30px) scale(0.95); }
+  }
+  .toast-icon {
+    width: 36px; height: 36px;
+    border-radius: 10px;
+    background: rgba(124,111,255,0.12);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1.1rem;
+    flex-shrink: 0;
+  }
+  .toast-content {}
+  .toast-title { font-size: 0.875rem; font-weight: 600; color: var(--text); }
+  .toast-sub { font-size: 0.78rem; color: var(--text2); margin-top: 2px; }
+  .toast-progress {
+    position: absolute;
+    bottom: 0; left: 0;
+    height: 3px;
+    border-radius: 0 0 16px 16px;
+    background: var(--grad1);
+    animation: progress 3s linear forwards;
+  }
+  @keyframes progress { from { width: 100%; } to { width: 0%; } }
+
+  /* ===== CART PANEL ===== */
+  .cart-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.3);
+    z-index: 200;
+    display: none;
+    backdrop-filter: blur(4px);
+  }
+  .cart-overlay.open { display: block; animation: fadeIn 0.2s ease; }
+  @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+  .cart-panel {
+    position: fixed;
+    top: 0; right: 0; bottom: 0;
+    width: 380px;
+    background: var(--bg);
+    z-index: 201;
+    padding: 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    transform: translateX(100%);
+    transition: transform 0.35s cubic-bezier(0.4,0,0.2,1), background 0.4s;
+    overflow-y: auto;
+  }
+  .cart-panel.open { transform: translateX(0); }
+  .cart-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .cart-title {
+    font-family: 'Sora', sans-serif;
+    font-size: 1.2rem;
+    font-weight: 700;
+  }
+  .cart-close {
+    width: 36px; height: 36px;
+    border-radius: 10px;
+    border: 1.5px solid var(--border);
+    background: transparent;
+    cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    color: var(--text2);
+    transition: all 0.2s;
+  }
+  .cart-close:hover { border-color: var(--accent3); color: var(--accent3); }
+  .cart-empty {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    color: var(--text3);
+    gap: 12px;
+    font-size: 0.9rem;
+  }
+  .cart-items { display: flex; flex-direction: column; gap: 12px; }
+  .cart-item {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 14px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    transition: background 0.4s;
+  }
+  .cart-item-icon { font-size: 1.3rem; }
+  .cart-item-info { flex: 1; }
+  .cart-item-name { font-size: 0.875rem; font-weight: 600; color: var(--text); }
+  .cart-item-price { font-size: 0.8rem; color: var(--accent1); font-weight: 600; }
+  .cart-item-remove {
+    background: none; border: none; cursor: pointer;
+    color: var(--text3); padding: 4px;
+    transition: color 0.2s;
+  }
+  .cart-item-remove:hover { color: #ff5078; }
+  .cart-total {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 16px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    transition: background 0.4s;
+  }
+  .cart-total-label { font-size: 0.875rem; color: var(--text2); }
+  .cart-total-amount {
+    font-family: 'Sora', sans-serif;
+    font-size: 1.1rem;
+    font-weight: 700;
+    background: var(--grad1);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+  .btn-checkout {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.95rem;
+    font-weight: 600;
+    padding: 14px;
+    background: var(--grad1);
+    color: #fff;
+    border: none;
+    border-radius: 14px;
+    cursor: pointer;
+    text-align: center;
+    transition: all 0.2s;
+    box-shadow: 0 6px 20px rgba(124,111,255,0.4);
+  }
+  .btn-checkout:hover { transform: translateY(-2px); box-shadow: 0 10px 28px rgba(124,111,255,0.5); }
+
+  /* Sidebar overlay for mobile */
+  .sidebar-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.4);
+    z-index: 89;
+  }
+
+  /* ===== RESPONSIVE ===== */
+  @media (max-width: 768px) {
+    .sidebar { transform: translateX(-100%); }
+    .sidebar.open { transform: translateX(0); }
+    .sidebar-overlay.open { display: block; }
+    .main { margin-left: 0; }
+    .hamburger { display: flex; }
+    nav { display: none; }
+    .hero { padding: 48px 24px; }
+    .stats-bar { padding: 0 24px 32px; }
+    .stat-item { padding: 14px 10px; }
+    .stat-num { font-size: 1.2rem; }
+    .section { padding: 20px 24px 40px; }
+    footer { padding: 40px 24px 28px; }
+    .footer-grid { grid-template-columns: 1fr 1fr; gap: 28px; }
+    .cart-panel { width: 100%; }
+    .header-right .btn-ghost { display: none; }
+  }
+  @media (max-width: 480px) {
+    .footer-grid { grid-template-columns: 1fr; }
+    .stats-bar { flex-direction: column; gap: 8px; }
+    .stat-item { border-radius: 12px !important; }
+  }
+
+  /* scrollbar */
+  ::-webkit-scrollbar { width: 6px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: rgba(124,111,255,0.3); border-radius: 4px; }
+  ::-webkit-scrollbar-thumb:hover { background: rgba(124,111,255,0.5); }
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<header>
+  <button class="hamburger" id="hamburgerBtn" onclick="toggleSidebar()">
+    <i data-lucide="menu" width="18" height="18"></i>
+  </button>
+  <div class="logo">Fire<span>store</span></div>
+  <nav>
+    <a href="#">Home</a>
+    <a href="#products">Produk</a>
+    <a href="#">Tentang Kami</a>
+    <a href="#">Kontak</a>
+  </nav>
+  <div class="header-right">
+    <button class="theme-toggle" onclick="toggleTheme()" title="Toggle dark mode">
+      <i data-lucide="moon" width="16" height="16" id="themeIcon"></i>
+    </button>
+    <button class="btn-ghost">Masuk</button>
+    <button class="btn-primary">Daftar</button>
+  </div>
+</header>
+
+<!-- SIDEBAR OVERLAY -->
+<div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar()"></div>
+
+<!-- SIDEBAR -->
+<aside class="sidebar" id="sidebar">
+  <div class="sidebar-label">Menu Utama</div>
+  <a class="sidebar-link active" onclick="setActive(this)">
+    <i data-lucide="layout-dashboard" width="18" height="18"></i>
+    Dashboard
+  </a>
+  <a class="sidebar-link" onclick="setActive(this)">
+    <i data-lucide="package" width="18" height="18"></i>
+    Semua Produk
+  </a>
+  <div class="sidebar-label">Layanan</div>
+  <a class="sidebar-link" onclick="setActive(this)">
+    <i data-lucide="settings" width="18" height="18"></i>
+    Jasa Setup
+  </a>
+  <a class="sidebar-link" onclick="setActive(this)">
+    <i data-lucide="puzzle" width="18" height="18"></i>
+    Plugin Premium
+  </a>
+  <a class="sidebar-link" onclick="setActive(this)">
+    <i data-lucide="gamepad-2" width="18" height="18"></i>
+    Account Minecraft
+  </a>
+  <div class="sidebar-label">Akun</div>
+  <a class="sidebar-link" onclick="openCart()">
+    <i data-lucide="shopping-cart" width="18" height="18"></i>
+    Keranjang
+    <span class="cart-badge" id="cartBadge">0</span>
+  </a>
+  <a class="sidebar-link" onclick="setActive(this)">
+    <i data-lucide="clock" width="18" height="18"></i>
+    Riwayat Transaksi
+  </a>
+  <a class="sidebar-link" onclick="setActive(this)">
+    <i data-lucide="user" width="18" height="18"></i>
+    Profil Saya
+  </a>
+  <a class="sidebar-link" onclick="setActive(this)" style="margin-top: auto; color: #ff7090;">
+    <i data-lucide="log-out" width="18" height="18"></i>
+    Keluar
+  </a>
+</aside>
+
+<!-- MAIN -->
+<main class="main">
+  <!-- HERO -->
+  <section class="hero">
+    <div class="hero-bg"></div>
+    <div class="hero-orb1"></div>
+    <div class="hero-orb2"></div>
+    <div class="hero-content">
+      <div class="hero-badge">
+        <i data-lucide="zap" width="13" height="13"></i>
+        #1 Toko Digital Minecraft Indonesia
+      </div>
+      <h1>Solusi Digital &<br><span class="gradient-text">Server Minecraft</span><br>Terpercaya</h1>
+      <p>Setup server impianmu, dapatkan plugin premium, dan beli akun Minecraft dengan harga terjangkau. Layanan cepat, aman, dan profesional.</p>
+      <div class="hero-buttons">
+        <button class="btn-large primary" onclick="document.getElementById('products').scrollIntoView({behavior:'smooth'})">
+          Lihat Produk &nbsp; →
+        </button>
+        <button class="btn-large secondary">
+          Hubungi Kami
+        </button>
+      </div>
+    </div>
+  </section>
+
+  <!-- STATS -->
+  <div class="stats-bar">
+    <div class="stat-item">
+      <div class="stat-num">2.4K+</div>
+      <div class="stat-label">Pelanggan Aktif</div>
+    </div>
+    <div class="stat-item">
+      <div class="stat-num">500+</div>
+      <div class="stat-label">Server Setup</div>
+    </div>
+    <div class="stat-item">
+      <div class="stat-num">99.9%</div>
+      <div class="stat-label">Kepuasan Klien</div>
+    </div>
+    <div class="stat-item">
+      <div class="stat-num">&lt;1 Jam</div>
+      <div class="stat-label">Respon Layanan</div>
+    </div>
+  </div>
+
+  <!-- PRODUCTS -->
+  <section class="section" id="products">
+    <div class="section-header">
+      <div class="section-title">Produk & Layanan</div>
+      <div class="section-line"></div>
+    </div>
+    <div class="products-grid">
+
+      <div class="product-card">
+        <span class="product-badge badge-popular">⭐ Populer</span>
+        <div class="product-icon icon-purple">🛠️</div>
+        <div class="product-name">Jasa Setup Server Minecraft</div>
+        <div class="product-desc">Setup server Minecraft profesional lengkap dengan konfigurasi plugin, anti-cheat, performance tuning, dan dukungan penuh.</div>
+        <div class="product-footer">
+          <div class="product-price">Rp 50.000</div>
+          <button class="btn-buy" onclick="addToCart('Jasa Setup Server Minecraft', 'Rp 50.000', '🛠️')">Beli Sekarang</button>
+        </div>
+      </div>
+
+      <div class="product-card">
+        <span class="product-badge badge-hot">🔥 Hot</span>
+        <div class="product-icon icon-pink">🔥</div>
+        <div class="product-name">Plugin Premium Minecraft</div>
+        <div class="product-desc">Koleksi plugin premium pilihan untuk server Minecraft. EssentialsX, Vault, LuckPerms, dan banyak lagi plugin terpopuler.</div>
+        <div class="product-footer">
+          <div class="product-price">Rp 25.000</div>
+          <button class="btn-buy" onclick="addToCart('Plugin Premium Minecraft', 'Rp 25.000', '🔥')">Beli Sekarang</button>
+        </div>
+      </div>
+
+      <div class="product-card">
+        <span class="product-badge badge-new">✨ Baru</span>
+        <div class="product-icon icon-cyan">🎮</div>
+        <div class="product-name">Account Minecraft Premium</div>
+        <div class="product-desc">Akun Minecraft Premium original, full akses ke multiplayer, skin kustom, dan semua fitur eksklusif Java Edition.</div>
+        <div class="product-footer">
+          <div class="product-price">Rp 150.000</div>
+          <button class="btn-buy" onclick="addToCart('Account Minecraft Premium', 'Rp 150.000', '🎮')">Beli Sekarang</button>
+        </div>
+      </div>
+
+      <div class="product-card">
+        <div class="product-icon icon-orange">🚀</div>
+        <div class="product-name">Jasa Optimasi & Anti-Lag</div>
+        <div class="product-desc">Tingkatkan performa server hingga 3x lebih cepat. Optimasi TPS, memory, dan konfigurasi untuk server yang lancar jaya.</div>
+        <div class="product-footer">
+          <div class="product-price">Rp 75.000</div>
+          <button class="btn-buy" onclick="addToCart('Jasa Optimasi & Anti-Lag', 'Rp 75.000', '🚀')">Beli Sekarang</button>
+        </div>
+      </div>
+
+      <div class="product-card">
+        <div class="product-icon icon-green">⚙️</div>
+        <div class="product-name">Custom Plugin Request</div>
+        <div class="product-desc">Plugin Minecraft sesuai kebutuhan server kamu. Konsultasi gratis, pengerjaan cepat, source code disertakan.</div>
+        <div class="product-footer">
+          <div class="product-price">Rp 200.000</div>
+          <button class="btn-buy" onclick="addToCart('Custom Plugin Request', 'Rp 200.000', '⚙️')">Beli Sekarang</button>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <footer>
+    <div class="footer-grid">
+      <div>
+        <div class="footer-logo">Firestore</div>
+        <div class="footer-desc">Platform terpercaya untuk semua kebutuhan digital server Minecraft kamu. Cepat, aman, dan terjangkau.</div>
+        <div class="footer-socials">
+          <a class="social-btn" href="#" title="Discord">💬</a>
+          <a class="social-btn" href="#" title="Instagram">📸</a>
+          <a class="social-btn" href="#" title="WhatsApp">📱</a>
+        </div>
+      </div>
+      <div class="footer-col">
+        <h4>Quick Links</h4>
+        <a href="#">Home</a>
+        <a href="#">Semua Produk</a>
+        <a href="#">Tentang Kami</a>
+        <a href="#">Blog</a>
+      </div>
+      <div class="footer-col">
+        <h4>Layanan</h4>
+        <a href="#">Jasa Setup</a>
+        <a href="#">Plugin Premium</a>
+        <a href="#">Akun Minecraft</a>
+        <a href="#">Custom Plugin</a>
+      </div>
+      <div class="footer-col">
+        <h4>Bantuan</h4>
+        <a href="#">FAQ</a>
+        <a href="#">Kontak Support</a>
+        <a href="#">Kebijakan Privasi</a>
+        <a href="#">Syarat & Ketentuan</a>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <div class="footer-copy">© 2026 Firestore. Hak cipta dilindungi undang-undang.</div>
+      <div class="footer-copy">Made with 💜 for Minecraft Community</div>
+    </div>
+  </footer>
+</main>
+
+<!-- CART OVERLAY -->
+<div class="cart-overlay" id="cartOverlay" onclick="closeCart()"></div>
+<div class="cart-panel" id="cartPanel">
+  <div class="cart-header">
+    <div class="cart-title">🛒 Keranjang</div>
+    <button class="cart-close" onclick="closeCart()">
+      <i data-lucide="x" width="16" height="16"></i>
+    </button>
+  </div>
+  <div id="cartContent">
+    <div class="cart-empty">
+      <i data-lucide="shopping-cart" width="40" height="40"></i>
+      <div>Keranjang kosong</div>
+      <div style="font-size:0.8rem; color:var(--text3)">Tambahkan produk untuk melanjutkan</div>
+    </div>
+  </div>
+  <div id="cartFooter" style="display:none; display: flex; flex-direction: column; gap: 12px; margin-top: auto;">
+    <div class="cart-total">
+      <div class="cart-total-label">Total Pembayaran</div>
+      <div class="cart-total-amount" id="cartTotal">Rp 0</div>
+    </div>
+    <button class="btn-checkout" onclick="checkout()">
+      Lanjut Pembayaran →
+    </button>
+  </div>
+</div>
+
+<!-- TOAST CONTAINER -->
+<div class="toast-container" id="toastContainer"></div>
+
+<script>
+  // Init Lucide
+  lucide.createIcons();
+
+  // Theme toggle
+  let isDark = false;
+  function toggleTheme() {
+    isDark = !isDark;
+    document.documentElement.setAttribute('data-theme', isDark ? 'dark' : 'light');
+    document.getElementById('themeIcon').setAttribute('data-lucide', isDark ? 'sun' : 'moon');
+    lucide.createIcons();
+  }
+
+  // Sidebar toggle
+  function toggleSidebar() {
+    const sidebar = document.getElementById('sidebar');
+    const overlay = document.getElementById('sidebarOverlay');
+    sidebar.classList.toggle('open');
+    overlay.classList.toggle('open');
+  }
+
+  // Active sidebar link
+  function setActive(el) {
+    document.querySelectorAll('.sidebar-link').forEach(l => l.classList.remove('active'));
+    el.classList.add('active');
+  }
+
+  // Cart state
+  let cart = [];
+
+  function addToCart(name, price, icon) {
+    const existing = cart.find(i => i.name === name);
+    if (existing) {
+      existing.qty++;
+    } else {
+      cart.push({ name, price, icon, qty: 1 });
+    }
+    updateCartUI();
+    showToast(icon, name, price);
+  }
+
+  function removeFromCart(index) {
+    cart.splice(index, 1);
+    updateCartUI();
+  }
+
+  function updateCartUI() {
+    const badge = document.getElementById('cartBadge');
+    const content = document.getElementById('cartContent');
+    const footer = document.getElementById('cartFooter');
+    const total = document.getElementById('cartTotal');
+    const totalCount = cart.reduce((a, b) => a + b.qty, 0);
+    badge.textContent = totalCount;
+
+    if (cart.length === 0) {
+      content.innerHTML = `<div class="cart-empty"><i data-lucide="shopping-cart" width="40" height="40"></i><div>Keranjang kosong</div><div style="font-size:0.8rem;color:var(--text3)">Tambahkan produk untuk melanjutkan</div></div>`;
+      footer.style.display = 'none';
+    } else {
+      const itemsHTML = cart.map((item, i) => `
+        <div class="cart-item">
+          <span class="cart-item-icon">${item.icon}</span>
+          <div class="cart-item-info">
+            <div class="cart-item-name">${item.name} ${item.qty > 1 ? `<small style="color:var(--text3)">×${item.qty}</small>` : ''}</div>
+            <div class="cart-item-price">${item.price}</div>
+          </div>
+          <button class="cart-item-remove" onclick="removeFromCart(${i})">
+            <i data-lucide="x" width="14" height="14"></i>
+          </button>
+        </div>
+      `).join('');
+      content.innerHTML = `<div class="cart-items">${itemsHTML}</div>`;
+      footer.style.display = 'flex';
+      footer.style.flexDirection = 'column';
+      footer.style.gap = '12px';
+
+      // Calculate total
+      const totalNum = cart.reduce((acc, item) => {
+        const num = parseInt(item.price.replace(/\D/g, ''));
+        return acc + num * item.qty;
+      }, 0);
+      total.textContent = 'Rp ' + totalNum.toLocaleString('id-ID');
+    }
+    lucide.createIcons();
+  }
+
+  function openCart() {
+    document.getElementById('cartOverlay').classList.add('open');
+    document.getElementById('cartPanel').classList.add('open');
+  }
+
+  function closeCart() {
+    document.getElementById('cartOverlay').classList.remove('open');
+    document.getElementById('cartPanel').classList.remove('open');
+  }
+
+  function checkout() {
+    cart = [];
+    updateCartUI();
+    closeCart();
+    showToastCustom('✅', 'Pesanan dikirim!', 'Terima kasih! Tim kami akan segera menghubungi kamu.');
+  }
+
+  // Toast
+  let toastCount = 0;
+  function showToast(icon, name, price) {
+    const container = document.getElementById('toastContainer');
+    const id = 'toast-' + (++toastCount);
+    const el = document.createElement('div');
+    el.className = 'toast';
+    el.id = id;
+    el.style.position = 'relative';
+    el.innerHTML = `
+      <div class="toast-icon">${icon}</div>
+      <div class="toast-content">
+        <div class="toast-title">Ditambahkan ke keranjang!</div>
+        <div class="toast-sub">${name} — ${price}</div>
+      </div>
+      <div class="toast-progress"></div>
+    `;
+    container.appendChild(el);
+    setTimeout(() => {
+      el.classList.add('out');
+      setTimeout(() => el.remove(), 300);
+    }, 3000);
+  }
+
+  function showToastCustom(icon, title, sub) {
+    const container = document.getElementById('toastContainer');
+    const el = document.createElement('div');
+    el.className = 'toast';
+    el.style.position = 'relative';
+    el.innerHTML = `
+      <div class="toast-icon">${icon}</div>
+      <div class="toast-content">
+        <div class="toast-title">${title}</div>
+        <div class="toast-sub">${sub}</div>
+      </div>
+      <div class="toast-progress"></div>
+    `;
+    container.appendChild(el);
+    setTimeout(() => {
+      el.classList.add('out');
+      setTimeout(() => el.remove(), 300);
+    }, 3500);
+  }
+</script>
+</body>
+</html>
